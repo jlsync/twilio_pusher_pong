@@ -63,10 +63,8 @@ class Bat extends Entity
   setSide: (side) ->
     @side = side
     if side is LEFT
-      console.log( 'side is left', side)
       @offsetX = 30
     else
-      console.log( 'side is right', side)
       @offsetX = pong.canvas.width - 70
 
   getSide: -> @side
@@ -76,7 +74,7 @@ class Bat extends Entity
     if @getSide() is LEFT
       @context.fillText(@getName(), @x+@offsetX+@w,  @y+@offsetY + (@h /2 ))
     else
-      @context.fillText(@getName(), @x+@offsetX - 100 ,  @y+@offsetY + (@h /2 ))
+      @context.fillText(@getName(), @x+@offsetX - 150 ,  @y+@offsetY + (@h /2 ))
 
 class Ball extends Entity
   w: 40, h: 40, x: 200, y: 200, game_over: false
@@ -117,6 +115,18 @@ class PongApp
     @addKeyObservers()
     @startNewGame()
 
+    @players = []
+    @bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    @bat1.setName('bat1')
+    @bat1.setSide(LEFT)
+
+    @bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    @bat2.setName('bat2')
+    @bat2.setSide(RIGHT)
+
+    @addPlayer(@bat1)
+    @addPlayer(@bat2)
+
   newPlayer: (name) ->
     np =  new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
     np.setName(name)
@@ -132,22 +142,12 @@ class PongApp
     @players.push(player)
 
   startNewGame: ->
-    @players = []
-    @bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    @bat1.setName('bat1')
-    @bat1.setSide(LEFT)
-
-    @bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    @bat2.setName('bat2')
-    @bat2.setSide(RIGHT)
 
     @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     
     @ball.vx = 5
     @ball.vy = 5
 
-    @addPlayer(@bat1)
-    @addPlayer(@bat2)
     
     @run_game()
   

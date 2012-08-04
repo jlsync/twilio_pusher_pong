@@ -8,6 +8,9 @@ class RootController < ApplicationController
   def  twilio
     if params[:Digits]
       # do something with  pusher
+      d = params[:Digit]
+      from = params[:From]
+      
       render 'digit'
       return
     else

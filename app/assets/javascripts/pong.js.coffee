@@ -86,33 +86,39 @@ class PongApp
     @startNewGame()
 
   startNewGame: ->
-    @entities = []
-    @entities.push(new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION)
-    @entities.push(new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION)
-    @entities.push(new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION)
+    @players = []
+    bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     
-    @entities[2].vx = 5
-    @entities[2].vy = 5
-    
-    @runLoop()
-  
-  runLoop: ->
-    setTimeout =>
-      # Adjust for player key input
-      @entities[0].decelY() if @aPressed
-      @entities[0].accelY() if @zPressed
-      @entities[1].decelY() if @upPressed
-      @entities[1].accelY() if @downPressed
+    @ball.vx = 5
+    @ball.vy = 5
 
-      # Update position of entities
-      @entities.forEach (e) -> e.update()
+    @players.push bat1
+    @players.push bat2
+    
+    @run_game()
+  
+  run_game: ->
+    @interval_id = setInterval =>
+      # Adjust for player key input
+      @players[0].decelY() if @aPressed
+      @players[0].accelY() if @zPressed
+      @players[1].decelY() if @upPressed
+      @players[1].accelY() if @downPressed
+
+      console.log('players' , @players)
+      # Update position of players
+      p.update() for p in @players
+      # Update position of ball
+      @ball.update()
 
       # Check for ball collsions with bats
-      @entities[2].checkCollision @entities[0], LEFT
-      @entities[2].checkCollision @entities[1], RIGHT
+      @ball.checkCollision @players[0], LEFT
+      @ball.checkCollision @players[1], RIGHT
 
       # Check for winner
-      player = @entities[2].checkWinner()
+      player = @ball.checkWinner()
       if player
         @terminateRunLoop = true
         @score = [0, 0] unless @score
@@ -128,11 +134,12 @@ class PongApp
       @clearCanvas()
     
       # Redraw game entities
-      @entities.forEach (e) -> e.draw()
+      p.draw() for p in @players
+      @ball.draw()
 
       # Run again unless we have been killed
-      @runLoop() unless @terminateRunLoop
-    , 10
+      clearInterval(@interval_id) if @terminateRunLoop
+    , 20
 
   notifyCurrentUser: (message) ->
     document.getElementById('message').innerHTML = message

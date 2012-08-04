@@ -14,7 +14,7 @@ class Entity
 
   score_plus_one: -> @score += 1
 
-  score: -> @score
+  getScore: -> @score
 
   update: ->
     # Apply friction
@@ -54,35 +54,36 @@ class Bat extends Entity
   w: 40, h: 175
 
   setName: (name) -> @name = name
-
-  name: -> @name or "unknown"
+  getName:  -> @name
 
 class Ball extends Entity
-  w: 40, h: 40, x: 200, y: 200, winner: null
+  w: 40, h: 40, x: 200, y: 200, game_over: false
 
-  checkWinner: -> @winner
+  checkGameOver: -> @game_over
 
   checkBoundary: ->
     if @x+@w > @maxX
-      @winner = 1
+      @game_over = true
     if @x < @minX
-      @winner = 2
+      @game_over = true
 
     # If we hit the top or the bottom we need to bounce
     @vy = -@vy if @y+@h > @maxY or @y < @minY
   
-  checkCollision: (e, bat) -> 
+  checkCollision: (e, side) ->
     x = @x + @offsetX
     y = @y + @offsetY
     ex = e.x + e.offsetX
     ey = e.y + e.offsetY
     if y >= ey and y <= ey+e.h
-      if bat is LEFT and x < ex+e.w
+      if side is LEFT and x < ex+e.w
         @x += BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
-      if bat is RIGHT and x+@w > ex
+        e.score_plus_one()
+      if side is RIGHT and x+@w > ex
         @x -= BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
+        e.score_plus_one()
 
   draw: ->
     @context.fillStyle = 'rgba(0,0,0,0.8)'
@@ -97,9 +98,9 @@ class PongApp
   startNewGame: ->
     @players = []
     bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    bat.setName('bat1')
+    bat1.setName('bat1')
     bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    bat2.setName('bat1')
+    bat2.setName('bat2')
     @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     
     @ball.vx = 5
@@ -128,11 +129,9 @@ class PongApp
       @ball.checkCollision @players[1], RIGHT
 
       # Check for winner
-      player = @ball.checkWinner()
-      if player
+      if @ball.checkGameOver()
         @terminateRunLoop = true
-        player.score_plus_one()
-        @notifyCurrentUser "Player #{player.name()} wins! Score: #{player.score()}. New game starting in 3 seconds."
+        @notifyCurrentUser "Game Over! Scores:<br/>#{("#{p.getName()}: #{p.getScore()}<br/>" for p in @players).join("")}<br/> New game starting in 3 seconds."
         setTimeout =>
           @notifyCurrentUser ''
           @terminateRunLoop = false

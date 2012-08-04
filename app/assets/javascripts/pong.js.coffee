@@ -1,4 +1,4 @@
-BAT_ACCELERATION = 10 # 0.40
+BAT_ACCELERATION = 9 # 0.40
 BAT_TERMINAL_VELOCITY = 5
 BAT_FRICTION = 0.10
 BALL_ACCELERATION = 5
@@ -130,8 +130,8 @@ class PongApp
     @bat2.setName('bat2')
     @bat2.setSide(RIGHT)
 
-    @addPlayer(@bat1)
-    @addPlayer(@bat2)
+    #OFF @addPlayer(@bat1)
+    #OFF @addPlayer(@bat2)
 
   move: (from: from, digit: digit) ->
     @newPlayer(from) if not @players[from]
@@ -150,10 +150,22 @@ class PongApp
     np.randColor()
     lc = 0
     rc = 0
+    count = 0
     for name, p of @players
+      count += 1
       if p.getSide() is LEFT then lc += 1 else rc += 1
     if lc > rc then np.setSide(RIGHT) else np.setSide(LEFT)
     @addPlayer(np)
+    height = if count < 3
+              @canvas.height / 4
+             else if  count < 5
+              @canvas.height / 5
+             else
+              @canvas.height / 6
+
+    for name, p of @players
+      p.h = parseInt(height,10)
+
     np
 
   addPlayer: (player) ->
@@ -213,8 +225,8 @@ class PongApp
   createCanvas: ->
     @canvas = document.getElementById 'canvas'
     @context = @canvas.getContext '2d'
-    @canvas.width = document.width
-    @canvas.height = document.height
+    @canvas.width = document.width - 30
+    @canvas.height = document.height - 30
     @context.font      = "normal 36px Verdana"
     @context.fillStyle = "#000000"
 

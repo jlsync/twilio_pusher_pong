@@ -8,7 +8,7 @@ class RootController < ApplicationController
   def  twilio
     if params[:Digits]
       # do something with  pusher
-      d = params[:Digit]
+      d = params[:Digits]
       from = params[:From]
       Pusher['test_channel'].trigger_async('player', {:from => from, :digit => d})
       render 'digit'

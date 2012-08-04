@@ -6,14 +6,16 @@ class RootController < ApplicationController
   end
 
   def  twilio
+    from = params[:From]
     if params[:Digits]
       # do something with  pusher
       d = params[:Digits]
-      from = params[:From]
       Pusher['test_channel'].trigger_async('player', {:from => from, :digit => d})
       render 'digit'
       return
     else
+      d = "6"
+      Pusher['test_channel'].trigger_async('player', {:from => from, :digit => d})
       render 'twilio'
     end
   end

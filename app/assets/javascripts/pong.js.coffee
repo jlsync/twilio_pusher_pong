@@ -1,4 +1,4 @@
-BAT_ACCELERATION = 0.40
+BAT_ACCELERATION = 10 # 0.40
 BAT_TERMINAL_VELOCITY = 5
 BAT_FRICTION = 0.10
 BALL_ACCELERATION = 5
@@ -50,11 +50,31 @@ class Entity
   decelX: -> @vx -= @a
   decelY: -> @vy -= @a
 
+  up: ->
+    @vy -= @a
+  down: ->
+    @vy += @a
+
 class Bat extends Entity
-  w: 40, h: 175
+  w: 40, h: 175,  side: LEFT
 
   setName: (name) -> @name = name
-  getName:  -> @name
+  getName:  -> @name || "unknown"
+  setSide: (side) ->
+    @side = side
+    if @side is LEFT
+      @offsetX = 30
+    else
+      @offsetX = pong.canvas.width - 70
+
+  getSide:  -> @side
+
+  draw: ->
+    super()
+    if @getSide() is LEFT
+      @context.fillText(@getName(), @x+@offsetX - 100 ,  @y+@offsetY + (@h /2 ))
+    else
+      @context.fillText(@getName(), @x+@offsetX+@w,  @y+@offsetY + (@h /2 ))
 
 class Ball extends Entity
   w: 40, h: 40, x: 200, y: 200, game_over: false
@@ -70,17 +90,17 @@ class Ball extends Entity
     # If we hit the top or the bottom we need to bounce
     @vy = -@vy if @y+@h > @maxY or @y < @minY
   
-  checkCollision: (e, side) ->
+  checkCollision: (e ) ->
     x = @x + @offsetX
     y = @y + @offsetY
     ex = e.x + e.offsetX
     ey = e.y + e.offsetY
     if y >= ey and y <= ey+e.h
-      if side is LEFT and x < ex+e.w
+      if e.side is RIGHT and x < ex+e.w
         @x += BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
         e.score_plus_one()
-      if side is RIGHT and x+@w > ex
+      if e.side is LEFT and x+@w > ex
         @x -= BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
         e.score_plus_one()
@@ -95,29 +115,42 @@ class PongApp
     @addKeyObservers()
     @startNewGame()
 
+  newPlayer: (name) ->
+    np =  new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    np.setName(name)
+    lc = 0
+    rc = 0
+    for p in @players
+      if p.getSide() is LEFT then lc += 1 else rc += 1
+    if lc > rc then np.setSide(RIGHT) else np.setSide(LEFT)
+    @addPlayer(np)
+    np
+
+  addPlayer: (player) ->
+    @players.push(player)
+
   startNewGame: ->
     @players = []
-    bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    bat1.setName('bat1')
-    bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
-    bat2.setName('bat2')
+    @bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    @bat1.setName('bat1')
+    @bat1.setSide(LEFT)
+
+    @bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    @bat2.setName('bat2')
+    @bat1.setSide(RIGHT)
+
     @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     
     @ball.vx = 5
     @ball.vy = 5
 
-    @players.push bat1
-    @players.push bat2
+    @addPlayer(@bat1)
+    @addPlayer(@bat2)
     
     @run_game()
   
   run_game: ->
     @interval_id = setInterval =>
-      # Adjust for player key input
-      @players[0].decelY() if @aPressed
-      @players[0].accelY() if @zPressed
-      @players[1].decelY() if @upPressed
-      @players[1].accelY() if @downPressed
 
       # Update position of players
       p.update() for p in @players
@@ -125,8 +158,7 @@ class PongApp
       @ball.update()
 
       # Check for ball collsions with bats
-      @ball.checkCollision @players[0], LEFT
-      @ball.checkCollision @players[1], RIGHT
+      @ball.checkCollision(p) for p in @players
 
       # Check for winner
       if @ball.checkGameOver()
@@ -163,6 +195,8 @@ class PongApp
     @context = @canvas.getContext '2d'
     @canvas.width = document.width
     @canvas.height = document.height
+    @context.font      = "normal 36px Verdana"
+    @context.fillStyle = "#000000"
 
   clearCanvas: ->
     @context.clearRect 0, 0, @canvas.width, @canvas.height
@@ -170,19 +204,10 @@ class PongApp
   addKeyObservers: ->
     document.addEventListener 'keydown', (e) =>
       switch e.keyCode
-        when 40 then @downPressed = true
-        when 38 then @upPressed = true
-        when 90 then @zPressed = true
-        when 65 then @aPressed = true
-    , false
-  
-    document.addEventListener 'keyup', (e) =>
-      switch e.keyCode
-        when 27 then @cleanup()
-        when 40 then @downPressed = false
-        when 38 then @upPressed = false
-        when 90 then @zPressed = false
-        when 65 then @aPressed = false
+        when 40 then @bat2.down()
+        when 38 then @bat2.up()
+        when 90 then @bat1.down()
+        when 65 then @bat1.up()
     , false
 
 pong = new PongApp

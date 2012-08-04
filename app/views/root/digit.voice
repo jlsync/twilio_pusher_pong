@@ -1,8 +1,6 @@
 
 
-Twilio::TwiML.build do |res|
-  res.gather( :num_digits => 1)  do
-    res.say "Got it. 1 for up and 2 for down."
-  end
+res.gather( :num_digits => 1)  do
+  res.say "Got it. 1 for up and 2 for down."
 end
 

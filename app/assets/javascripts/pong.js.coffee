@@ -10,6 +10,11 @@ RIGHT = 1
 class Entity
   x: 0, y: 0, vx: 0, vy: 0 
   constructor: (@context, @maxX, @maxY, @minX, @minY, @offsetX, @offsetY, @a, @tv, @f) ->
+    @score = 0
+
+  score_plus_one: -> @score += 1
+
+  score: -> @score
 
   update: ->
     # Apply friction
@@ -47,6 +52,10 @@ class Entity
 
 class Bat extends Entity
   w: 40, h: 175
+
+  setName: (name) -> @name = name
+
+  name: -> @name or "unknown"
 
 class Ball extends Entity
   w: 40, h: 40, x: 200, y: 200, winner: null
@@ -88,7 +97,9 @@ class PongApp
   startNewGame: ->
     @players = []
     bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    bat.setName('bat1')
     bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
+    bat2.setName('bat1')
     @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     
     @ball.vx = 5
@@ -107,7 +118,6 @@ class PongApp
       @players[1].decelY() if @upPressed
       @players[1].accelY() if @downPressed
 
-      console.log('players' , @players)
       # Update position of players
       p.update() for p in @players
       # Update position of ball
@@ -121,9 +131,8 @@ class PongApp
       player = @ball.checkWinner()
       if player
         @terminateRunLoop = true
-        @score = [0, 0] unless @score
-        @score[player-1]++
-        @notifyCurrentUser "Player #{player} wins! Score: #{@score[0]} - #{@score[1]}. New game starting in 3 seconds."
+        player.score_plus_one()
+        @notifyCurrentUser "Player #{player.name()} wins! Score: #{player.score()}. New game starting in 3 seconds."
         setTimeout =>
           @notifyCurrentUser ''
           @terminateRunLoop = false
@@ -179,6 +188,12 @@ class PongApp
 
 pong = new PongApp
 
-$= jQuery
+$ = jQuery
+
+window.Bat = Bat
+window.PongApp = PongApp
+window.Ball = Ball
+window.pong = pong
+
 $ ->
   pong.main()

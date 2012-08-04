@@ -1,0 +1,8 @@
+
+
+Twilio::TwiML.build do |res|
+  res.gather( :num_digits => 1)  do
+    res.say "Please press 1 for up and 2 for down"
+  end
+end
+

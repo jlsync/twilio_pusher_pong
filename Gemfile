@@ -7,6 +7,8 @@ gem 'rails', '3.2.7'
 
 gem 'pg'
 gem 'haml'
+gem 'twilio-rb'
+gem 'pusher'
 
 
 # Gems used only for assets and not required

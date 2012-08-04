@@ -1,6 +1,7 @@
 TwilioPusherPong::Application.routes.draw do
 
   root :to => 'root#index'
+  match '/twilio' => 'root#twilio'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

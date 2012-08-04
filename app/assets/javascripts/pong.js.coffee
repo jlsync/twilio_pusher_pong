@@ -8,7 +8,7 @@ LEFT = 0
 RIGHT = 1
 
 class Entity
-  x: 0, y: 0, vx: 0, vy: 0 
+  x: 0, y: 0, vx: 0, vy: 0, r: 0, g: 0, b: 0
   constructor: (@context, @maxX, @maxY, @minX, @minY, @offsetX, @offsetY, @a, @tv, @f) ->
     @score = 0
 
@@ -42,7 +42,7 @@ class Entity
     @y = @minY if @y < @minY
 
   draw: ->
-    @context.fillStyle = 'rgba(0,0,0,0.8)'
+    @context.fillStyle = "rgba(#{@r},#{@g},#{@b},0.8)"
     @context.fillRect @x+@offsetX, @y+@offsetY, @w, @h
 
   accelX: -> @vx += @a
@@ -57,6 +57,12 @@ class Entity
 
 class Bat extends Entity
   w: 40, h: 175,  side: LEFT
+
+
+  randColor: ->
+    @r = "#{parseInt((Math.random() * 240),10)}"
+    @g = "#{parseInt((Math.random() * 240),10)}"
+    @b = "#{parseInt((Math.random() * 240),10)}"
 
   setName: (name) -> @name = name
   getName:  -> @name || "unknown"
@@ -128,10 +134,10 @@ class PongApp
     @addPlayer(@bat2)
 
   move: (from: from, digit: digit) ->
-    newPlayer(from) if not @players[from]
+    @newPlayer(from) if not @players[from]
     if digit is "4"
       @players[from].up()
-    else if dgit is "6"
+    else if digit is "6"
       @players[from].down()
 
   player_leave: (from: from) ->
@@ -141,6 +147,7 @@ class PongApp
   newPlayer: (name) ->
     np =  new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
     np.setName(name)
+    np.randColor()
     lc = 0
     rc = 0
     for name, p of @players

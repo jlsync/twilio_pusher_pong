@@ -62,19 +62,21 @@ class Bat extends Entity
   getName:  -> @name || "unknown"
   setSide: (side) ->
     @side = side
-    if @side is LEFT
+    if side is LEFT
+      console.log( 'side is left', side)
       @offsetX = 30
     else
+      console.log( 'side is right', side)
       @offsetX = pong.canvas.width - 70
 
-  getSide:  -> @side
+  getSide: -> @side
 
   draw: ->
     super()
     if @getSide() is LEFT
-      @context.fillText(@getName(), @x+@offsetX - 100 ,  @y+@offsetY + (@h /2 ))
-    else
       @context.fillText(@getName(), @x+@offsetX+@w,  @y+@offsetY + (@h /2 ))
+    else
+      @context.fillText(@getName(), @x+@offsetX - 100 ,  @y+@offsetY + (@h /2 ))
 
 class Ball extends Entity
   w: 40, h: 40, x: 200, y: 200, game_over: false
@@ -96,11 +98,11 @@ class Ball extends Entity
     ex = e.x + e.offsetX
     ey = e.y + e.offsetY
     if y >= ey and y <= ey+e.h
-      if e.side is RIGHT and x < ex+e.w
+      if e.side is LEFT and x < ex+e.w
         @x += BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
         e.score_plus_one()
-      if e.side is LEFT and x+@w > ex
+      if e.side is RIGHT and x+@w > ex
         @x -= BAT_TERMINAL_VELOCITY / 2
         @vx = -@vx
         e.score_plus_one()
@@ -137,7 +139,7 @@ class PongApp
 
     @bat2 = new Bat @context, @canvas.width, @canvas.height, 0, 0, @canvas.width - 70, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
     @bat2.setName('bat2')
-    @bat1.setSide(RIGHT)
+    @bat2.setSide(RIGHT)
 
     @ball = new Ball @context, @canvas.width, @canvas.height, 0, 0, 0, 0, BALL_ACCELERATION, BALL_TERMINAL_VELOCITY, BALL_FRICTION
     

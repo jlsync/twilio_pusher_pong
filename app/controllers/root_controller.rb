@@ -21,7 +21,7 @@ class RootController < ApplicationController
   def  twilio_status
     from = params[:From]
     Pusher['test_channel'].trigger_async('player_leave', {:from => from})
-    render :status => :ok
+    render :nothing => true, :status => 204
   end
 
 end

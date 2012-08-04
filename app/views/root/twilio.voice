@@ -1,6 +1,6 @@
 
 
 res.gather( :num_digits => 1)  do
-  res.say "Please press 1 for up and 2 for down"
+  res.say "Welcome! Press 4 for up and 6 for down"
 end
 

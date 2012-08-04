@@ -17,8 +17,11 @@
 
       var pusher = new Pusher('be980d841f2e9322944d');
       var channel = pusher.subscribe('test_channel');
-      channel.bind('my_event', function(data) {
-        alert(data);
+      channel.bind('player', function(data) {
+        pong.move(data);
+      });
+      channel.bind('player_leave', function(data) {
+        pong.player_leave(data);
       });
   %body
     = yield

@@ -8,6 +8,7 @@ gem 'rails', '3.2.7'
 gem 'pg'
 gem 'haml'
 gem 'twilio-rb'
+gem 'em-http-request' # for pusher async_trigger
 gem 'pusher'
 
 group :production do

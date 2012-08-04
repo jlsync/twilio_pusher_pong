@@ -115,7 +115,7 @@ class PongApp
     @addKeyObservers()
     @startNewGame()
 
-    @players = []
+    @players = {}
     @bat1 = new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
     @bat1.setName('bat1')
     @bat1.setSide(LEFT)
@@ -127,19 +127,30 @@ class PongApp
     @addPlayer(@bat1)
     @addPlayer(@bat2)
 
+  move: (from: from, digit: digit) ->
+    newPlayer(from) if not @players[from]
+    if digit is "4"
+      @players[from].up()
+    else if dgit is "6"
+      @players[from].down()
+
+  player_leave: (from: from) ->
+    delete @players[from]
+
+
   newPlayer: (name) ->
     np =  new Bat @context, @canvas.width, @canvas.height, 0, 0, 30, 0, BAT_ACCELERATION, BAT_TERMINAL_VELOCITY, BAT_FRICTION
     np.setName(name)
     lc = 0
     rc = 0
-    for p in @players
+    for name, p of @players
       if p.getSide() is LEFT then lc += 1 else rc += 1
     if lc > rc then np.setSide(RIGHT) else np.setSide(LEFT)
     @addPlayer(np)
     np
 
   addPlayer: (player) ->
-    @players.push(player)
+    @players[player.getName()] = player
 
   startNewGame: ->
 
@@ -155,17 +166,17 @@ class PongApp
     @interval_id = setInterval =>
 
       # Update position of players
-      p.update() for p in @players
+      p.update() for name,p of @players
       # Update position of ball
       @ball.update()
 
       # Check for ball collsions with bats
-      @ball.checkCollision(p) for p in @players
+      @ball.checkCollision(p) for name,p of @players
 
       # Check for winner
       if @ball.checkGameOver()
         @terminateRunLoop = true
-        @notifyCurrentUser "Game Over! Scores:<br/>#{("#{p.getName()}: #{p.getScore()}<br/>" for p in @players).join("")}<br/> New game starting in 3 seconds."
+        @notifyCurrentUser "Game Over! Scores:<br/>#{("#{p.getName()}: #{p.getScore()}<br/>" for name, p of @players).join("")}<br/> New game starting in 3 seconds."
         setTimeout =>
           @notifyCurrentUser ''
           @terminateRunLoop = false
@@ -176,7 +187,7 @@ class PongApp
       @clearCanvas()
     
       # Redraw game entities
-      p.draw() for p in @players
+      p.draw() for name, p of @players
       @ball.draw()
 
       # Run again unless we have been killed

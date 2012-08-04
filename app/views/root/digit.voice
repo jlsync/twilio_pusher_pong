@@ -1,6 +1,6 @@
 
 
 res.gather( :num_digits => 1)  do
-  res.say "Got it. 1 for up and 2 for down."
+  res.say "Got it. 4 for up and 6 for down"
 end
 

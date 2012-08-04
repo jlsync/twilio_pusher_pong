@@ -10,6 +10,10 @@ gem 'haml'
 gem 'twilio-rb'
 gem 'pusher'
 
+group :production do
+  gem 'thin'   # for heroku speed
+end
+
 
 # Gems used only for assets and not required
 # in production environments by default.

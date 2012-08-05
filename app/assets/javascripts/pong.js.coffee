@@ -66,6 +66,7 @@ class Bat extends Entity
 
   setName: (name) -> @name = name
   getName:  -> @name || "unknown"
+  getNameXX:  -> @namexx ||= @getName().replace(/\d\d$/, "XX")
   setSide: (side) ->
     @side = side
     if side is LEFT
@@ -78,9 +79,9 @@ class Bat extends Entity
   draw: ->
     super()
     if @getSide() is LEFT
-      @context.fillText(@getName(), @x+@offsetX+@w,  @y+@offsetY + (@h /2 ))
+      @context.fillText(@getNameXX(), @x+@offsetX+@w,  @y+@offsetY + (@h /2 ))
     else
-      @context.fillText(@getName(), @x+@offsetX - 200 ,  @y+@offsetY + (@h /2 ))
+      @context.fillText(@getNameXX(), @x+@offsetX - 220 ,  @y+@offsetY + (@h /2 ))
 
 class Ball extends Entity
   w: 40, h: 40, x: 200, y: 200, game_over: false

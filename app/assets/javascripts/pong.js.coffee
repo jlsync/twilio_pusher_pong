@@ -196,7 +196,7 @@ class PongApp
       # Check for winner
       if @ball.checkGameOver()
         @terminateRunLoop = true
-        @notifyCurrentUser "Game Over! Scores:<br/>#{("#{p.getName()}: #{p.getScore()}<br/>" for name, p of @players).join("")}<br/> New game starting in 3 seconds."
+        @notifyCurrentUser "Game Over! Scores:<br/>#{("#{p.getNameXX()}: #{p.getScore()}<br/>" for name, p of @players).join("")}<br/> New game starting in 3 seconds."
         setTimeout =>
           @notifyCurrentUser ''
           @terminateRunLoop = false
